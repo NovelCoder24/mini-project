@@ -1,0 +1,76 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  padding: 1rem 0;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+
+.brand-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: hsl(var(--text-main));
+  letter-spacing: -0.02em;
+}
+
+.nav-search {
+  flex: 1;
+  max-width: 500px;
+}
+
+.search-input {
+  border-radius: var(--radius-full);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-link {
+  text-decoration: none;
+}
+
+.nav-link.active .action-btn {
+  background: var(--glass-bg);
+  color: hsl(var(--primary));
+}
+
+.action-btn span {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .action-btn span {
+    display: inline;
+  }
+}

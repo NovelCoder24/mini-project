@@ -1,0 +1,6 @@
+/* App CSS is minimal, layout mostly handled by global and component classes */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
