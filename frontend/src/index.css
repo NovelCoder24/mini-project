@@ -2,22 +2,22 @@
 
 :root {
   /* HSL Tailored Colors */
-  --bg-dark: 230 25% 10%;
-  --bg-card: 230 25% 15%;
-  --text-main: 220 10% 90%;
-  --text-muted: 220 10% 60%;
+  --bg-dark: 210 30% 98%;
+  --bg-card: 0 0% 100%;
+  --text-main: 220 30% 15%;
+  --text-muted: 220 15% 40%;
   
-  --primary: 260 100% 65%; /* Vibrant Purple */
-  --primary-hover: 260 100% 70%;
-  --secondary: 320 100% 60%; /* Pnk/Magenta Accent */
+  --primary: 220 80% 50%;
+  --primary-hover: 220 80% 45%;
+  --secondary: 220 80% 50%;
   
-  --success: 140 70% 50%;
-  --warning: 35 100% 55%;
-  --danger: 0 80% 60%;
+  --success: 140 70% 40%;
+  --warning: 35 100% 45%;
+  --danger: 0 80% 50%;
 
   /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.1);
   --glass-blur: blur(12px);
 
   --radius-sm: 8px;
@@ -46,7 +46,7 @@ body {
 
 /* Typography elements */
 h1, h2, h3, h4, h5, h6 {
-  color: #ffffff;
+  color: hsl(var(--text-main));
   font-weight: 600;
   line-height: 1.2;
 }
@@ -66,10 +66,8 @@ h3 { font-size: 1.5rem; }
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: hsl(var(--primary));
+  font-weight: 700;
 }
 
 .container {
