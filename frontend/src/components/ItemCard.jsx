@@ -25,7 +25,7 @@ const ItemCard = ({ item, onClick }) => {
           </div>
           <div className="meta-item">
             <Clock size={16} />
-            <span>{new Date(item.date).toLocaleDateString()}</span>
+            <span>{new Date(item.createdAt || item.date).toLocaleDateString()}</span>
           </div>
         </div>
       </div>

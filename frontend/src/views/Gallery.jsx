@@ -1,24 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ItemCard from '../components/ItemCard';
 import ItemModal from '../components/ItemModal';
-import { mockedItems } from '../mockData';
+import { currentUser } from '../mockData';
 import './Gallery.css';
 
 const Gallery = ({ searchQuery }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('All'); // All, Lost, Found
+  const [items, setItems] = useState([]);
   
-  const filteredItems = mockedItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = selectedStatus === 'All' || item.status.toLowerCase() === selectedStatus.toLowerCase();
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const { data } = await axios.get('/api/items');
+        setItems(data);
+      } catch (error) {
+        console.error('Error fetching items', error);
+      }
+    };
+    fetchItems();
+  }, []);
+
+  const filteredItems = items.filter(item => {
+    const searchLower = searchQuery ? searchQuery.toLowerCase() : '';
+    const matchesSearch = item.title?.toLowerCase().includes(searchLower) || 
+                          item.description?.toLowerCase().includes(searchLower);
+    const matchesStatus = selectedStatus === 'All' || item.status?.toLowerCase() === selectedStatus.toLowerCase();
     
     return matchesSearch && matchesStatus;
   });
 
-  const handleClaim = (itemId, verificationAnswer) => {
-    console.log(`Claimed item ${itemId} with answer: ${verificationAnswer}`);
-    // In a real app, this would hit an API endpoint
+  const handleClaim = async (itemId, verificationAnswer) => {
+    try {
+      await axios.post('/api/claims', {
+        itemId,
+        claimerId: currentUser.id,
+        claimerName: currentUser.name,
+        answer: verificationAnswer
+      });
+      // Optionally trigger re-fetch or state update here
+    } catch (error) {
+      console.error('Error submitting claim', error);
+    }
   };
 
   return (
@@ -49,7 +73,7 @@ const Gallery = ({ searchQuery }) => {
         <div className="items-grid">
           {filteredItems.map(item => (
             <ItemCard 
-              key={item.id} 
+              key={item._id || item.id} 
               item={item} 
               onClick={setSelectedItem} 
             />

@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
-import { currentUser, mockedItems, mockedClaims } from '../mockData';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { currentUser } from '../mockData';
 import ItemCard from '../components/ItemCard';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('myItems'); // myItems, myClaims
+  const [activeTab, setActiveTab] = useState('myItems');
+  const [myItems, setMyItems] = useState([]);
+  const [myClaims, setMyClaims] = useState([]);
 
-  const myItems = mockedItems.filter(item => item.finderId === currentUser.id);
-  
-  const myClaims = mockedClaims
-    .filter(claim => claim.claimerId === currentUser.id)
-    .map(claim => {
-      const item = mockedItems.find(i => i.id === claim.itemId);
-      return { ...claim, item };
-    });
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const { data: allItems } = await axios.get('/api/items');
+        setMyItems(allItems.filter(item => item.finderId === currentUser.id));
+
+        const { data: claims } = await axios.get(`/api/claims?claimerId=${currentUser.id}`);
+        const claimsWithItem = claims.map(claim => ({
+          ...claim,
+          item: claim.itemId // Mongoose populated this
+        }));
+        setMyClaims(claimsWithItem);
+      } catch (error) {
+        console.error('Error fetching dashboard data', error);
+      }
+    };
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="dashboard-container">
@@ -51,7 +64,7 @@ const Dashboard = () => {
                 </div>
               ) : (
                 myItems.map(item => (
-                  <ItemCard key={item.id} item={item} onClick={() => {}} />
+                  <ItemCard key={item._id || item.id} item={item} onClick={() => {}} />
                 ))
               )}
             </div>
@@ -65,11 +78,11 @@ const Dashboard = () => {
                 </div>
               ) : (
                 myClaims.map(claim => (
-                  <div key={claim.id} className="claim-card glass-panel flex-row">
+                  <div key={claim._id || claim.id} className="claim-card glass-panel flex-row">
                     <img src={claim.item?.image} alt={claim.item?.title} className="claim-thumbnail" />
                     <div className="claim-details">
                       <h3>{claim.item?.title}</h3>
-                      <p>Claimed on: {new Date(claim.date).toLocaleDateString()}</p>
+                      <p>Claimed on: {new Date(claim.createdAt).toLocaleDateString()}</p>
                       <span className={`status-badge badge-${claim.status}`}>
                         {claim.status}
                       </span>

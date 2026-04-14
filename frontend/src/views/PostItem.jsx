@@ -1,30 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, MapPin, Tag } from 'lucide-react';
+import axios from 'axios';
+import { Camera, MapPin, Tag, Loader } from 'lucide-react';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import { currentUser } from '../mockData';
 import './PostItem.css';
 
 const PostItem = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     type: 'found',
     title: '',
     category: '',
     location: '',
     description: '',
-    verificationQuestion: ''
+    verificationQuestion: '',
+    image: ''
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
+    const fileData = new FormData();
+    fileData.append('image', file);
+    setUploading(true);
+
+    try {
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+      const { data } = await axios.post('/api/upload', fileData, config);
+      setFormData({ ...formData, image: data });
+      setUploading(false);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting new item:', formData);
-    // In a real app this would call API. We just redirect here.
-    navigate('/');
+    try {
+      const payload = {
+        ...formData,
+        finderId: currentUser.id,
+        finderName: currentUser.name
+      };
+      await axios.post('/api/items', payload);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error creating item', error);
+    }
   };
 
   return (
@@ -126,10 +156,31 @@ const PostItem = () => {
 
         <div className="form-group image-upload-group">
           <label className="input-label">Upload Image</label>
-          <div className="image-upload-area">
-            <Camera size={32} className="upload-icon" />
-            <p>Click or drag image to upload</p>
-            <span className="upload-hint">Upload a clear photo of the item</span>
+          <div 
+            className="image-upload-area" 
+            onClick={() => fileInputRef.current?.click()}
+            style={{ 
+              backgroundImage: formData.image ? `url(${formData.image})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              onChange={uploadFileHandler}
+              accept="image/*"
+            />
+            {uploading ? (
+              <Loader size={32} className="upload-icon animate-spin" />
+            ) : !formData.image && (
+              <>
+                <Camera size={32} className="upload-icon" />
+                <p>Click or drag image to upload</p>
+                <span className="upload-hint">Upload a clear photo of the item</span>
+              </>
+            )}
           </div>
         </div>
 
@@ -137,7 +188,7 @@ const PostItem = () => {
           <Button type="button" variant="ghost" onClick={() => navigate('/')}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" size="lg">
+          <Button type="submit" variant="primary" onClick={handleSubmit} size="lg">
             Submit Report
           </Button>
         </div>
